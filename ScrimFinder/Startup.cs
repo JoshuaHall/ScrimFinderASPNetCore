@@ -19,11 +19,16 @@ namespace ScrimFinder
     {
         public Startup(IHostingEnvironment env)
         {
+            bool optional = false;
+            bool reloadOnChange = true;
             IConfigurationBuilder builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("C:\\Users\\Joshua\\AppData\\Roaming\\Microsoft\\UserSecrets\\aspnet-ScrimFinder-secret54100\\secrets.json",
-                optional: false,
-                reloadOnChange: true)
+                .AddJsonFile("C:\\Users\\josh\\AppData\\Roaming\\Microsoft\\UserSecrets\\aspnet-ScrimFinder-secret54100\\secrets.json",
+                optional: optional,
+                reloadOnChange: reloadOnChange)
+                .AddJsonFile("appsettings.json",
+                optional: optional,
+                reloadOnChange: reloadOnChange)
                 .AddEnvironmentVariables();
 
             if (env.IsDevelopment())
@@ -46,7 +51,6 @@ namespace ScrimFinder
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddHsts(options =>
@@ -56,18 +60,18 @@ namespace ScrimFinder
                 options.MaxAge = TimeSpan.FromDays(60);
             });
 
-            services.AddHttpsRedirection(options =>
-            {
-                options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
-                options.HttpsPort = 5001;
-            });
+            //services.AddHttpsRedirection(options =>
+            //{
+            //    options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+            //    options.HttpsPort = 5001;
+            //});
 
             services.AddAuthentication().AddBattleNet(options =>
             {
                 options.Region = BattleNetAuthenticationRegion.America;
                 options.ClientId = Configuration["BattleNetId"];
                 options.ClientSecret = Configuration["BattleNetSecret"];
-                options.CallbackPath = PathString.FromUriComponent(new Uri("https://014e3b50.ngrok.io/"));
+                options.CallbackPath = new PathString(Configuration["BattleNetCallbackUrl"]);
             });
 
             services.AddSingleton<IEmailSender, EmailSender>();
@@ -87,7 +91,7 @@ namespace ScrimFinder
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseAuthentication();
             app.UseCookiePolicy();
