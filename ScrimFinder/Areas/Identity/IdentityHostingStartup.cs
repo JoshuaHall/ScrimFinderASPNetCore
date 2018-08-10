@@ -20,8 +20,11 @@ namespace ScrimFinder.Areas.Identity
                     options.UseSqlServer(
                         context.Configuration.GetConnectionString("ScrimFinderContextConnection")));
 
-                services.AddDefaultIdentity<ScrimFinderUser>()
-                    .AddEntityFrameworkStores<ScrimFinderContext>();
+                services.AddDefaultIdentity<ScrimFinderUser>(config =>
+                {
+                    config.SignIn.RequireConfirmedEmail = true;
+                })
+                .AddEntityFrameworkStores<ScrimFinderContext>();
             });
         }
     }
